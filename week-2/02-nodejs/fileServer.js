@@ -1,4 +1,4 @@
-/**
+ /**
   You need to create an express HTTP server in Node.js which will handle the logic of a file server.
   - Use built in Node.js `fs` module
   The expected API endpoints are defined below,
@@ -16,6 +16,33 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const app = express();
+const dirpath = path.join(__dirname, 'files');
+
+app.get('/files', function (req, res){
+  fs.readdir(dirpath, function(err, files) {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to retrieve files' });
+    }
+
+    res.json(files);
+  });
+});
+
+app.get('/file/:filename', function (req, res) {
+  const filepath = path.join(__dirname, 'files', req.params.filename);
+
+  fs.readFile(filepath, 'utf8', function(err, data) {
+    if (err) {
+      return res.status(404).send('File not found');
+    }
+
+    res.send(data);
+  });
+});
+
+app.get('*', function (req, res) {
+  res.status(404).send('Route not found');
+})
 
 
 module.exports = app;
